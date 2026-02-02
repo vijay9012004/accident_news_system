@@ -3,9 +3,7 @@ import requests
 
 app = Flask(__name__)
 
-# 🔑 Replace with your own News API key
 API_KEY = "YOUR_NEWS_API_KEY"
-
 NEWS_URL = "https://newsapi.org/v2/everything"
 
 def get_accident_news():
@@ -45,4 +43,4 @@ def api_accidents():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=False, use_reloader=False)
