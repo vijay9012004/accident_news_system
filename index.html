@@ -1,38 +1,81 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Live Accident News System</title>
+    <title>Road Anomaly Detection</title>
+
     <style>
         body {
+            background: #0f172a;
+            color: white;
             font-family: Arial;
-            background-color: #f4f6f8;
-            padding: 20px;
+            text-align: center;
+            padding: 30px;
         }
-        .news-box {
-            background: white;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-left: 5px solid #e63946;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        h1 {
+            color: #38bdf8;
         }
-        a {
-            text-decoration: none;
-            color: #1d3557;
+        input, button {
+            margin-top: 15px;
+            padding: 10px;
+            font-size: 16px;
+        }
+        button {
+            background: red;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        img {
+            margin-top: 20px;
+            width: 350px;
+            border-radius: 10px;
+            border: 2px solid #38bdf8;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
         }
     </style>
 </head>
+
 <body>
 
-<h1>🚨 Live Road Accident News</h1>
+    <h1>🚦 Road Anomaly Detection</h1>
 
-{% for item in news %}
-<div class="news-box">
-    <h3>{{ item.title }}</h3>
-    <p><b>Source:</b> {{ item.source }}</p>
-    <p><b>Published:</b> {{ item.published }}</p>
-    <a href="{{ item.url }}" target="_blank">Read Full News</a>
-</div>
-{% endfor %}
+    <input type="file" id="imageInput" accept="image/*">
+    <br>
+    <button onclick="predict()">Predict</button>
+
+    <div class="result" id="output"></div>
+    <img id="preview">
+
+<script>
+function predict() {
+    const file = document.getElementById("imageInput").files[0];
+    if (!file) {
+        alert("Please upload an image");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("image", file);
+
+    fetch("/predict", {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById("output").innerHTML =
+            `<b>Prediction:</b> ${data.class}<br>
+             <b>Confidence:</b> ${(data.confidence * 100).toFixed(2)}%<br>
+             <b>Emergency:</b> ${data.emergency ? "🚨 YES" : "✅ NO"}`;
+
+        document.getElementById("preview").src = URL.createObjectURL(file);
+    });
+}
+</script>
 
 </body>
 </html>
