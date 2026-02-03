@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify, render_template
 import cv2, numpy as np, os, gdown
 from keras.models import load_model
 
-# ===================== CONFIG =====================
+# ================= CONFIG =================
 MODEL_FILE = "road_anomaly_model.h5"
 FILE_ID = "1FiHUDZPL1MFyG1g06_jjM4MJV2tH9rpg"
 CLASS_NAMES = ['Accident', 'Fight', 'Fire', 'Snatching']
@@ -11,10 +11,10 @@ IMG_SIZE = (224, 224)
 
 app = Flask(__name__)
 
-# ===================== DOWNLOAD MODEL =====================
+# ================= DOWNLOAD MODEL =================
 def download_model():
     if not os.path.exists(MODEL_FILE):
-        print("⬇️ Downloading CNN model from Google Drive...")
+        print("⬇️ Downloading CNN model...")
         gdown.download(
             f"https://drive.google.com/uc?id={FILE_ID}",
             MODEL_FILE,
@@ -23,16 +23,16 @@ def download_model():
 
 download_model()
 
-# ===================== LOAD MODEL =====================
-MODEL = load_model(MODEL_FILE)
+# ================= LOAD MODEL =================
+model = load_model(MODEL_FILE)
 
-# ===================== PREPROCESS =====================
+# ================= PREPROCESS =================
 def preprocess(img):
     img = cv2.resize(img, IMG_SIZE)
     img = img.astype("float32") / 255.0
     return np.expand_dims(img, axis=0)
 
-# ===================== ROUTES =====================
+# ================= ROUTES =================
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -43,7 +43,7 @@ def predict():
     img_bytes = np.frombuffer(file.read(), np.uint8)
     img = cv2.imdecode(img_bytes, cv2.IMREAD_COLOR)
 
-    preds = MODEL.predict(preprocess(img), verbose=0)
+    preds = model.predict(preprocess(img), verbose=0)
     class_id = int(np.argmax(preds))
     confidence = float(np.max(preds))
 
@@ -53,6 +53,6 @@ def predict():
         "emergency": 1 if confidence >= CONF_THRESHOLD else 0
     })
 
-# ===================== RUN =====================
+# ================= RUN =================
 if __name__ == "__main__":
     app.run(debug=True)
