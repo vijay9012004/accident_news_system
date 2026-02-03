@@ -1,5 +1,8 @@
 from flask import Flask, request, jsonify, render_template
-import cv2, numpy as np, os, gdown
+import numpy as np
+import cv2
+import os
+import gdown
 from keras.models import load_model
 
 # ================= CONFIG =================
@@ -14,7 +17,7 @@ app = Flask(__name__)
 # ================= DOWNLOAD MODEL =================
 def download_model():
     if not os.path.exists(MODEL_FILE):
-        print("⬇️ Downloading CNN model...")
+        print("⬇️ Downloading model from Google Drive...")
         gdown.download(
             f"https://drive.google.com/uc?id={FILE_ID}",
             MODEL_FILE,
@@ -39,9 +42,15 @@ def home():
 
 @app.route("/predict", methods=["POST"])
 def predict():
+    if "image" not in request.files:
+        return jsonify({"error": "No image uploaded"})
+
     file = request.files["image"]
     img_bytes = np.frombuffer(file.read(), np.uint8)
     img = cv2.imdecode(img_bytes, cv2.IMREAD_COLOR)
+
+    if img is None:
+        return jsonify({"error": "Invalid image"})
 
     preds = model.predict(preprocess(img), verbose=0)
     class_id = int(np.argmax(preds))
@@ -55,4 +64,4 @@ def predict():
 
 # ================= RUN =================
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
