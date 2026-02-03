@@ -1,2 +1,6 @@
 flask
-requests
+tensorflow-cpu
+opencv-python
+numpy
+gdown
+gunicorn
