@@ -2,7 +2,6 @@
 <html>
 <head>
     <title>Road Anomaly Detection</title>
-
     <style>
         body {
             background: #0f172a;
@@ -11,9 +10,7 @@
             text-align: center;
             padding: 30px;
         }
-        h1 {
-            color: #38bdf8;
-        }
+        h1 { color: #38bdf8; }
         input, button {
             margin-top: 15px;
             padding: 10px;
@@ -41,14 +38,14 @@
 
 <body>
 
-    <h1>🚦 Road Anomaly Detection</h1>
+<h1>🚦 Road Anomaly Detection</h1>
 
-    <input type="file" id="imageInput" accept="image/*">
-    <br>
-    <button onclick="predict()">Predict</button>
+<input type="file" id="imageInput" accept="image/*">
+<br>
+<button onclick="predict()">Predict</button>
 
-    <div class="result" id="output"></div>
-    <img id="preview">
+<div class="result" id="output"></div>
+<img id="preview">
 
 <script>
 function predict() {
@@ -67,6 +64,11 @@ function predict() {
     })
     .then(res => res.json())
     .then(data => {
+        if (data.error) {
+            document.getElementById("output").innerHTML = data.error;
+            return;
+        }
+
         document.getElementById("output").innerHTML =
             `<b>Prediction:</b> ${data.class}<br>
              <b>Confidence:</b> ${(data.confidence * 100).toFixed(2)}%<br>
